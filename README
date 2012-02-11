@@ -1,0 +1,15 @@
+This is an implementation of horizontal reuse in PHP, but without using PHP 5.4
+language features.
+
+The idea is to provide a mechanism of horizontal reuse, which can be configured
+with PHP in PHP. Any class that conforms to a certain set of rules is to be
+used as a trait/graft in another class. However, it is important to leave the
+graft class open to inherit from another class, and to require little or no
+refactoring and change of logic. Setting dependencies of a class on a
+per-instance basis means that some internal members are to be set. On the other
+hand, the logic, which is going to enable such "inheritance", cannot be located
+inside this class because of the requirements mentioned above.
+
+The solution I see suitable is to have another class responsible for most of the
+logic, where as the final class produced will have to implement a certain
+interface and assign the private variables inside itself.
