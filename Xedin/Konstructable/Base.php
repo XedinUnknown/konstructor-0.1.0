@@ -17,6 +17,10 @@ class Xedin_Konstructable_Base implements Xedin_Konstructable_Interface {
         $this->_construct();
     }
     
+    protected function _construct() {
+        return $this;
+    }
+    
     protected function _callKonstructorMethod($methodName, $args = array(), $konstructor = null) {
         if( is_null($konstructor) ) {
             $konstructor = $this->getKonstructor();
