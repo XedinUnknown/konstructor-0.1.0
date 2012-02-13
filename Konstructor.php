@@ -83,8 +83,9 @@ class Konstructor {
     }
     
     public static function getKonstructMethod($destination, $methodName, $konstructName = null) {
-        foreach( $destination as $className => $_config ) {
-            $_object = $_config[self::DESTINATION_INDEX_OBJECT];
+        foreach( $destination as $className => $_delegate ) {
+            $_object = $_delegate[self::DESTINATION_INDEX_OBJECT];
+            $methodName = self::resolveMethodName($methodName, $delegate);
             if( method_exists($_object, $methodName) ) {
                 return array($_object, $methodName);
             }
@@ -111,6 +112,14 @@ class Konstructor {
     
     public static function getKonstructsCount(&$source) {
         return (empty($source) ? 0 : count($source));
+    }
+    
+    public static function resolveMethodName($methodName, &$delegate) {
+        if( isset($delegate[self::DESTINATION_INDEX_FUNCTION_MAP]) && isset($delegate[self::DESTINATION_INDEX_FUNCTION_MAP][$methodName]) ) {
+            return $delegate[self::DESTINATION_INDEX_FUNCTION_MAP][$methodName];
+        }
+        
+        return $methodName;
     }
     
     protected static function throwError($errorFormat, $variables = null) {
