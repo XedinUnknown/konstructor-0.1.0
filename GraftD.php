@@ -11,10 +11,14 @@ class GraftD {
     protected $_surname;
     
     public function __construct($surname = 'Smith') {
-        $this->$_surname = $name;
+        $this->_surname = $surname;
     }
     
     public function getSurname() {
-        return $this->$_surname;
+        return $this->_surname;
+    }
+    
+    public function setSurname($surname) {
+        $this->_surname = $surname;
     }
 }

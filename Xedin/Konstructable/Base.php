@@ -52,13 +52,20 @@ class Xedin_Konstructable_Base implements Xedin_Konstructable_Interface {
     }
     
     public function getKonstructMethod($methodName, $konstructName = null) {
-        return $callback = $this->_callKonstructorMethod('getKonstructMethod', array(&$this->_konstructs, $methodName));
+        return $callback = $this->_callKonstructorMethod('getKonstructMethod', array(&$this->_konstructs, $methodName, $konstructName));
     }
     
     public function callKonstructMethod($methodName, $arguments = null, $konstructName = null) {
         $callback = $this->getKonstructMethod($methodName, $konstructName);
         if( !$callback ) {
-            throw new Xedin_Exception('Method "' . $methodName . '" does not exist in neither ' . get_class() . ' nor in ' . implode(' or ', array_keys($this->getKonstructs())));
+            $message = 'Method "' . $methodName . '" does not exist in ';
+            if( !$this->hasKonstructs() ) { 
+                $message .= get_class($this) . '. This class uses no konstructs.';
+            }
+            else {
+                $message .= 'neither ' . get_class($this) . ' nor in ' . implode(' or ', array_keys($this->getKonstructs()));
+            }
+            throw new Exception($message);
         }
         
         return call_user_func_array($callback, $arguments);
@@ -77,7 +84,11 @@ class Xedin_Konstructable_Base implements Xedin_Konstructable_Interface {
     }
     
     public function getKonstructs() {
-        return $this->_konstructs;
+        return $this->_callKonstructorMethod('getKonstructs', array(&$this->_konstructs));
+    }
+    
+    public function hasKonstructs() {
+        return (bool)$this->_callKonstructorMethod('getKonstructsCount', array(&$this->_konstructs));
     }
     
     public function getKonstructor() {

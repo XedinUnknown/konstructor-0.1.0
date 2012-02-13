@@ -16,6 +16,10 @@ class GraftB extends Xedin_Konstructable_Base {
         call_user_func_array(array('parent', '__construct'), $args);
     }
     
+    public function _construct() {
+        $this->_konstruct('GraftD');
+    }
+    
     public function getName() {
         return $this->_name;
     }
