@@ -4,6 +4,7 @@
  *
  * @version 0.1.0
  * @author Xedin Unknown <xedin.unknown+xdn@gmail.com>
+ * @todo Create a class to represent a delegate, and replace all occurances of array delegate with the OO analogue in this messy code.
  */
 class Konstructor {
     
