@@ -7,7 +7,6 @@
  */
 class Konstructor {
     
-    protected static $_konstructPropertyName = '__xedKonstructs';
     protected static $_errorExceptionClassName = 'Xedin_Exception';
     
     const DUPLICATE_ACTION_IGNORE = 'ignore';
@@ -15,8 +14,17 @@ class Konstructor {
     const DUPLICATE_ACTION_STOP = 'stop';
     const DUPLICATE_ACTION_THROW = 'throw';
     
+    const DESTINATION_INDEX_OBJECT = '_knstrctr_object';
+    const DESTINATION_INDEX_FUNCTION_MAP  = '_knstrctr_function_map';
+    
     public static function konstruct(&$destination, $source, $duplicateAction = self::DUPLICATE_ACTION_IGNORE) {
-        if( is_array($source) ) {
+        $sourceIsDelegate = ( is_array($source) && isset($source[self::DESTINATION_INDEX_OBJECT]) );
+        
+        /*
+         * If source is an array, but not a delegate, treat as array of source
+         * classes/objects and konstruct them all.
+         */
+        if( is_array($source) && !$sourceIsDelegate ) {
             foreach( $source as $_className ) {
                 if( !self::konstruct($destination, $_className, $duplicateAction) ) {
                     break;
@@ -26,11 +34,37 @@ class Konstructor {
             return true;
         }
         
-        if( is_string($source) && !class_exists($source, true) ) {
-            self::throwError('Could not konstruct %1$s: source class does not exist.', $source);
+        $delegate = array();
+        
+        /*
+         * If source is not an array and not a delegate, treat as a single
+         * class/object and normalize.
+         */
+        if( !$sourceIsDelegate ) {
+            $delegate[self::DESTINATION_INDEX_OBJECT] = ( is_string($source) ? new $source : $source);
         }
         
-        if( isset($destination[$source]) ) {
+        /**
+         * If source is a string, and class with this name does not exist,
+         * throw error.
+         */
+        if( is_string($delegate[self::DESTINATION_INDEX_OBJECT]) && !class_exists($delegate[self::DESTINATION_INDEX_OBJECT], true) ) {
+            self::throwError('Could not konstruct %1$s: source class does not exist.', $delegate[self::DESTINATION_INDEX_OBJECT]);
+        }
+        
+        /**
+         * If source is an array which is a delegate, check whether the object
+         * index is a string or an object, and if string - instantiate.
+         */
+        $delegate[self::DESTINATION_INDEX_OBJECT] = ( is_string($delegate[self::DESTINATION_INDEX_OBJECT]) 
+                ? new $delegate[self::DESTINATION_INDEX_OBJECT]
+                : $delegate[self::DESTINATION_INDEX_OBJECT] );
+        
+        $sourceClassName = ( is_string($delegate[self::DESTINATION_INDEX_OBJECT])
+                ? $delegate[self::DESTINATION_INDEX_OBJECT]
+                : get_class($delegate[self::DESTINATION_INDEX_OBJECT]) );
+        
+        if( isset($destination[$sourceClassName]) ) {
             switch( $duplicateAction ) {
                 case self::DUPLICATE_ACTION_IGNORE:
                     return true;
@@ -44,17 +78,13 @@ class Konstructor {
             }
         }
         
-        if( is_string($source) ) {
-            $source = new $source;
-        }
-        
-        $sourceClassName = get_class($source);
-        $destination[$sourceClassName] = $source;
+        $destination[$sourceClassName] = $delegate;
         return true;
     }
     
     public static function getKonstructMethod($destination, $methodName, $konstructName = null) {
-        foreach( $destination as $className => $_object ) {
+        foreach( $destination as $className => $_config ) {
+            $_object = $_config[self::DESTINATION_INDEX_OBJECT];
             if( method_exists($_object, $methodName) ) {
                 return array($_object, $methodName);
             }
