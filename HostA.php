@@ -5,11 +5,11 @@
  */
 
 /**
- * Description of ClassA
+ * The class that will use other classes.
  *
  * @author Xedin Unknown <xedin.unknown+xdn@gmail.com>
  */
-class ClassA {
+class HostA {
     
     protected $_options;
     
