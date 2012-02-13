@@ -19,8 +19,10 @@ function xdn_autoload($className) {
 spl_autoload_register('xdn_autoload');
 
 $graftA = new GraftA();
+
+echo $graftA->getName() . "\n";
+echo $graftA->getSurname() . "\n";
+$graftA->setSurname('Moore');
+echo $graftA->getSurname() . "\n";
+
 var_dump($graftA);
-
-echo $graftA->getName();
-
-?>
